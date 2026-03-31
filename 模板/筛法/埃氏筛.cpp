@@ -50,6 +50,7 @@ void eratosthenes(int n) {
             if (1LL * i * i > n) continue;
 
             // 从 i * i 开始筛掉 i 的倍数
+            // 比 i * i 小的倍数，前面都已经筛过了
             for (long long j = 1LL * i * i; j <= n; j += i) {
                 is_composite[(int)j] = true;
             }
