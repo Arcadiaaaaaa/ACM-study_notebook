@@ -26,12 +26,17 @@ using namespace std;
     - 需要多次判断一个数是否为素数
 */
 
+// 素数
 vector<int> primes;
+// 合数
 vector<bool> is_composite;
 
 void eratosthenes(int n) {
     // 大小开到 n + 1，方便直接用下标表示数字本身
     is_composite.assign(n + 1, false);
+    // 0 和 1 不是素数，直接标记为合数
+    if (n >= 0) is_composite[0] = true;
+    if (n >= 1) is_composite[1] = true;
     primes.clear();
 
     // 0 和 1 不是素数，这里不加入 primes
