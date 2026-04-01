@@ -17,7 +17,7 @@ using namespace std;
     - 如果一个合数 x 不是质数，那么它一定存在一个不超过 sqrt(x) 的质因子
     - 因为 x <= R，所以筛出 sqrt(R) 以内的质数就够了
 
-    每个质数 p 从哪里开始筛？
+    重点：每个质数 p 从哪里开始筛？
     - 起点至少要是区间内第一个 p 的倍数，也就是 ceil(L / p) * p
     - 但还要保证起点不小于 p * p
     - 因为如果一个 p 的倍数小于 p * p，那么它可以写成 p * k，且 k < p
@@ -72,7 +72,7 @@ void eratosthenes(int n) {
 vector<long long> segmented_sieve(long long L, long long R) {
     int len = (int)(R - L + 1);
     is_composite_range.assign(len, false);
-
+ 
     int limit = get_sqrt_limit(R);
     eratosthenes(limit);
 
