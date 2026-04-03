@@ -174,3 +174,213 @@ int cnt = upper_bound(a, a + n, x) - lower_bound(a, a + n, x);
 ```
 
 这是做计数类二分题时非常常用的写法。
+
+## 7. `sort` 自定义排序
+
+头文件：
+
+```cpp
+#include <algorithm>
+```
+
+基本写法：
+
+```cpp
+sort(a.begin(), a.end());          // 默认升序
+sort(a.begin(), a.end(), cmp);     // 按自定义规则排序
+```
+
+### 7.1 比较函数写法
+
+例如：按从大到小排序
+
+```cpp
+bool cmp(int a, int b) {
+    return a > b;
+}
+```
+
+使用：
+
+```cpp
+sort(a.begin(), a.end(), cmp);
+```
+
+含义：
+- 如果 `cmp(a, b)` 返回 `true`，表示排序后 `a` 应该排在 `b` 前面。
+
+### 7.2 `lambda` 写法
+
+比赛里更常用的是直接写在 `sort` 里面：
+
+```cpp
+sort(a.begin(), a.end(), [](int x, int y) {
+    return x > y;
+});
+```
+
+优点：
+- 不用额外写单独的比较函数
+- 排序规则离调用位置更近，读起来更直接
+
+### 7.3 结构体多关键字排序
+
+例如有：
+
+```cpp
+struct Node {
+    int a, b;
+};
+```
+
+希望按：
+- 第一关键字 `a` 升序
+- 如果 `a` 相等，再按 `b` 降序
+
+可以写成：
+
+```cpp
+bool cmp(const Node &x, const Node &y) {
+    if (x.a != y.a) return x.a < y.a;
+    return x.b > y.b;
+}
+```
+
+然后：
+
+```cpp
+sort(v.begin(), v.end(), cmp);
+```
+
+### 7.4 常见错误
+
+1. 相等时不要乱返回
+
+错误想法：
+
+```cpp
+return a <= b;
+```
+
+原因：
+- 比较器要求的是“谁应该排前面”
+- 不是“谁小于等于谁”
+- 如果写成 `<=`，相等时 `cmp(a, b)` 和 `cmp(b, a)` 都可能为 `true`，会破坏排序规则
+
+正确写法：
+
+```cpp
+return a < b;
+```
+
+2. 多关键字排序时要先判第一关键字是否相等
+
+```cpp
+if (x.a != y.a) return x.a < y.a;
+return x.b > y.b;
+```
+
+3. 比较器里不要写会改变外部数据的逻辑
+
+原因：
+- 比较函数应该只负责比较
+- 不要在里面修改数组、计数器、容器内容
+
+### 7.5 常见场景
+
+- 整数从大到小排序
+- `pair` 按第一关键字升序、第二关键字降序
+- 结构体按多个条件排序
+- 先按分数排，再按编号排
+
+例如 `pair<int, int>`：
+
+```cpp
+sort(v.begin(), v.end(), [](const pair<int, int> &x, const pair<int, int> &y) {
+    if (x.first != y.first) return x.first < y.first;
+    return x.second > y.second;
+});
+```
+
+记忆方式：
+- `return true`：左边这个元素应该更靠前
+- 先写第一关键字
+- 再写相等时的第二关键字
+
+### 7.6 `stable_sort`
+
+作用：
+- 稳定排序
+- 如果两个元素比较结果“相等”，那么排序后它们原本的先后顺序不会变
+
+写法：
+
+```cpp
+stable_sort(a.begin(), a.end());
+stable_sort(a.begin(), a.end(), cmp);
+```
+
+和 `sort` 的区别：
+- `sort`：通常更常用，速度快，但不保证稳定
+- `stable_sort`：保证稳定，但常数通常更大一些
+
+什么时候用：
+- 当“相等时原顺序也有意义”
+- 先按第二关键字排，再按第一关键字做稳定排序
+- 题目要求“分数相同保持输入顺序”
+
+例子：
+
+```cpp
+vector<pair<int, char>> v = {{2, 'A'}, {1, 'B'}, {2, 'C'}, {1, 'D'}};
+
+stable_sort(v.begin(), v.end(), [](const pair<int, char> &x, const pair<int, char> &y) {
+    return x.first < y.first;
+});
+```
+
+排序后：
+- `first = 1` 的仍然是 `B` 在前，`D` 在后
+- `first = 2` 的仍然是 `A` 在前，`C` 在后
+
+### 7.7 其他常用排序相关函数
+
+1. `reverse`
+
+作用：
+- 把一个区间直接翻转
+
+```cpp
+sort(a.begin(), a.end());
+reverse(a.begin(), a.end());   // 升序排完再翻成降序
+```
+
+2. `partial_sort`
+
+作用：
+- 只关心前 `k` 小或前 `k` 大时使用
+- 排完后，前 `k` 个位置是正确的，且这部分内部有序
+
+```cpp
+partial_sort(a.begin(), a.begin() + k, a.end());
+```
+
+3. `nth_element`
+
+作用：
+- 只关心第 `k` 小元素时使用
+- 会把“应该排在第 k 个位置的元素”放到对应位置
+- 左边都不大于它，右边都不小于它，但左右内部不保证有序
+
+```cpp
+nth_element(a.begin(), a.begin() + k, a.end());
+```
+
+例如：
+- `k = 0`：最小值
+- `k = n / 2`：中位数位置
+
+做题提醒：
+- 需要完整有序：`sort` 或 `stable_sort`
+- 只要前 `k` 个最小值：`partial_sort`
+- 只要第 `k` 小：`nth_element`
