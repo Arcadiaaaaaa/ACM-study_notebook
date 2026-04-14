@@ -18,6 +18,9 @@ using namespace std;
     - 求最小可行值时，mid 取下中位数
     - 求最大可行值时，mid 取上中位数，避免死循环
     - 左右边界、mid、答案通常优先开 long long
+    r = mid 时，要保证 mid != r，所以取 下中位数
+    l = mid 时，要保证 mid != l，所以取 上中位数
+    看 mid 能不能作为答案保留下来。
 */
 
 template <class Check>
